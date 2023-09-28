@@ -236,7 +236,7 @@ void *manager(void *arg){
 
         // 添加线程
         // 任务数 > 存活线程数 && 存活线程数 < 最大线程数
-        if (queueSize > liveNum && liveNum < pool->maxNum){
+        if (queueSize > liveNum - busyNum && liveNum < pool->maxNum){
             pthread_mutex_lock(&(pool->mutexPool)); // 给线程池加锁
             int counter = 0;                        // 记录成功创建的线程个数
             for (int i = 0; 
