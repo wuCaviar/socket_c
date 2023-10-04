@@ -6,21 +6,18 @@
 .
 ├── README.md
 ├── socket
-│   ├── build
 │   ├── client.c
 │   └── server.c
 ├── socket_thread
-│   ├── build
 │   ├── client.c
 │   └── server_thread.c
-└── socket_threadpool
-    ├── build
+└── socket_threadpoll
     ├── client.c
-    ├── server_threadpool.c
-    ├── threadpool.c
-    └── threadpool.h
+    ├── server_threadpoll.c
+    ├── threadpoll.c
+    └── threadpoll.h
 ```
 
 - socket: 单线程版
 - socket_thread: 多线程版
-- socket_threadpool: 线程池版
+- socket_threadpoll: 线程池版
