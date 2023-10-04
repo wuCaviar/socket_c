@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <pthread.h> // 线程相关的头文件
-#include "threadpool.h" // 线程池相关的头文件
+#include "threadpoll.h" // 线程池相关的头文件
 
 struct SockInfo
 {
@@ -15,7 +15,7 @@ struct SockInfo
 typedef struct PoolInfo
 {
     int fd;
-    ThreadPool* p;
+    ThreadPoll* p;
 }PoolInfo;
 
 void working(void* arg); // 线程的工作函数
@@ -48,11 +48,11 @@ int main(){
     }
 
     // 创建线程池
-    ThreadPool *pool = threadPoolCreate(3, 8, 100);
+    ThreadPoll *poll = threadPoolCreate(3, 8, 100);
     PoolInfo* info = (PoolInfo*)malloc(sizeof(PoolInfo));
     info->fd = fd;
-    info->p = pool;
-    threadPoolAdd(pool, acceptConn, info); // 添加任务
+    info->p = poll;
+    threadPoolAdd(poll, acceptConn, info); // 添加任务
 
     pthread_exit(NULL);
     return 0;
@@ -60,22 +60,22 @@ int main(){
 
 void acceptConn(void* arg){
     // 1. 获取参数
-    PoolInfo* poolInfo = (PoolInfo*)arg;
+    PoolInfo* pollInfo = (PoolInfo*)arg;
     // 4. 阻塞并等待客户端连接
     int addrlen = sizeof(struct sockaddr_in);
     while (1){    
         struct SockInfo* pinfo = NULL;
         pinfo = (struct SockInfo*)malloc(sizeof(struct SockInfo));
-        pinfo->fd = accept(poolInfo->fd, (struct sockaddr*)&pinfo->addr, &addrlen); 
+        pinfo->fd = accept(pollInfo->fd, (struct sockaddr*)&pinfo->addr, &addrlen); 
         if(pinfo->fd == -1){
         perror("accept");
         break;
         }
         // 创建通信任务
-        threadPoolAdd(poolInfo->p, working, pinfo);
+        threadPoolAdd(pollInfo->p, working, pinfo);
     }
 
-    close(poolInfo->fd);
+    close(pollInfo->fd);
 }
 
 void working(void* arg){
