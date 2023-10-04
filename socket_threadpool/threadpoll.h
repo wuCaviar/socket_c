@@ -1,7 +1,7 @@
-#ifndef _THREADPOOL_H_
-#define _THREADPOOL_H_
+#ifndef _THREADPOLL_H_
+#define _THREADPOLL_H_
 
-typedef struct ThreadPool ThreadPool; //前置声明
+typedef struct ThreadPoll ThreadPoll; //前置声明
 
 /*
     * @function: threadPoolCreate
@@ -11,7 +11,7 @@ typedef struct ThreadPool ThreadPool; //前置声明
     * @param queueSize: 线程池中任务队列的最大容量
     * @return: 成功返回线程池地址，失败返回NULL
     */
-ThreadPool* threadPoolCreate(int min, int max, int queueSize);
+ThreadPoll* threadPoolCreate(int min, int max, int queueSize);
 
 /*
     * @function: threadPoolDestroy
@@ -19,7 +19,7 @@ ThreadPool* threadPoolCreate(int min, int max, int queueSize);
     * @param pool: 线程池地址
     * @return: 成功返回0，失败返回-1
     */
-int threadPoolDestroy(ThreadPool* pool);
+int threadPoolDestroy(ThreadPoll* pool);
 
 /*
     * @function: threadPoolAdd
@@ -29,7 +29,7 @@ int threadPoolDestroy(ThreadPool* pool);
     * @param arg: 任务函数参数
     * @return: 成功返回0，失败返回-1
     */
-void threadPoolAdd(ThreadPool* pool, void(*func)(void*), void* arg);
+void threadPoolAdd(ThreadPoll* pool, void(*func)(void*), void* arg);
 
 /*
     * @function: threadPoolBusyNum
@@ -37,7 +37,7 @@ void threadPoolAdd(ThreadPool* pool, void(*func)(void*), void* arg);
     * @param pool: 线程池地址
     * @return: 成功返回线程池中工作的线程的个数，失败返回-1
     */
-int threadPoolBusyNum(ThreadPool* pool);
+int threadPoolBusyNum(ThreadPoll* pool);
 
 /*
     * @function: threadPoolAliveNum
@@ -45,7 +45,7 @@ int threadPoolBusyNum(ThreadPool* pool);
     * @param pool: 线程池地址
     * @return: 成功返回线程池中活着的线程的个数，失败返回-1
     */
-int threadPoolAliveNum(ThreadPool* pool);
+int threadPoolAliveNum(ThreadPoll* pool);
 
 /*
     * @function: worker
@@ -69,6 +69,6 @@ void* manager(void* arg);
     * @param pool: 线程池地址
     * @return: 无
     */
-void threadExit(ThreadPool* pool);
+void threadExit(ThreadPoll* pool);
 
 #endif // _THREADPOOL_H_

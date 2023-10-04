@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "threadpool.h"
+#include "threadpoll.h"
 
 const int NUMBER = 2;               // 线程池中线程的个数
 
@@ -14,7 +14,7 @@ typedef struct Task{
 }Task;
 
 //线程池结构体
-struct ThreadPool{
+struct ThreadPoll{
     Task* taskQ;                    //任务队列
     int queueCapacity;              //任务队列容量
     int queueSize;                  //任务队列中实际任务数
@@ -38,9 +38,9 @@ struct ThreadPool{
     int shutdown;                   //是否要销毁线程池 1:销毁 0:不销毁
 };
 
-ThreadPool* threadPoolCreate(int min, int max, int queueSize){
+ThreadPoll* threadPoolCreate(int min, int max, int queueSize){
     //创建线程池并初始化
-    ThreadPool *pool = (ThreadPool *)malloc(sizeof(ThreadPool));
+    ThreadPoll *pool = (ThreadPoll *)malloc(sizeof(ThreadPoll));
     do{
         // 分配内存失败
         if (pool == NULL){ 
@@ -96,7 +96,7 @@ ThreadPool* threadPoolCreate(int min, int max, int queueSize){
     return NULL;
 }
 
-int threadPoolDestroy(ThreadPool* pool){
+int threadPoolDestroy(ThreadPoll* pool){
     if (pool == NULL) return -1;                // 线程池不存在，销毁失败
     
     pool->shutdown = 1;                         // 关闭线程池
@@ -122,7 +122,7 @@ int threadPoolDestroy(ThreadPool* pool){
     return 0;
 }
 
-void threadPoolAdd(ThreadPool *pool, void (*func)(void *), void *arg){
+void threadPoolAdd(ThreadPoll *pool, void (*func)(void *), void *arg){
     pthread_mutex_lock(&(pool->mutexPool)); // 给线程池加锁
     while (pool->queueSize == pool->queueCapacity && !pool->shutdown){
         // 任务队列满，阻塞生产者线程
@@ -144,14 +144,14 @@ void threadPoolAdd(ThreadPool *pool, void (*func)(void *), void *arg){
     pthread_mutex_unlock(&(pool->mutexPool));   // 给线程池解锁
 }
 
-int threadPoolBusyNum(ThreadPool *pool){
+int threadPoolBusyNum(ThreadPoll *pool){
     pthread_mutex_lock(&(pool->mutexBusy));     // 给busyNum加锁
     int busyNum = pool->busyNum;                // 获取忙线程数
     pthread_mutex_unlock(&(pool->mutexBusy));   // 给busyNum解锁
     return busyNum;
 }
 
-int threadPoolAliveNum(ThreadPool *pool){
+int threadPoolAliveNum(ThreadPoll *pool){
     pthread_mutex_lock(&(pool->mutexPool));     // 给线程池加锁
     int liveNum = pool->liveNum;                // 获取存活线程数
     pthread_mutex_unlock(&(pool->mutexPool));   // 给线程池解锁
@@ -159,7 +159,7 @@ int threadPoolAliveNum(ThreadPool *pool){
 }
 
 void *worker(void *arg){
-    ThreadPool *pool = (ThreadPool *)arg;       // 获取线程池地址
+    ThreadPoll *pool = (ThreadPoll *)arg;       // 获取线程池地址
 
     while (1)
     {
@@ -217,7 +217,7 @@ void *worker(void *arg){
 }
 
 void *manager(void *arg){
-    ThreadPool *pool = (ThreadPool *)arg;           // 获取线程池地址
+    ThreadPoll *pool = (ThreadPoll *)arg;           // 获取线程池地址
     while (!pool->shutdown)
     {
         // 每隔3s检测一次
@@ -268,7 +268,7 @@ void *manager(void *arg){
     return NULL;
 }
 
-void threadExit(ThreadPool *pool){
+void threadExit(ThreadPoll *pool){
     pthread_t tid = pthread_self(); // 获取当前线程ID
     for (int i = 0; i < pool->maxNum; ++i)
     {
